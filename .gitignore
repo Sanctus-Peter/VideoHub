@@ -1,0 +1,22 @@
+# created by virtualenv automatically
+*
+*/unencrypted
+*decrypted/
+bin/
+lib/
+
+# Environments
+.env
+.venv
+env/
+pyvenv.cfg
+venv/
+
+# Editor directories and files
+.idea
+.vscode/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
