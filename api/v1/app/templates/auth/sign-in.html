@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sign In</h1>
+
+    {% include "snippets/form_error.html" %}
+
+    {% if logged_in %}
+        <p>You are already logged in. Would you want to log out</p>
+    {% else %}
+    <form method="POST">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="email@example.com" id="email" required />
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="your password" id="password" required />
+        </div>
+        <button type="submit">sign in</button>
+    </form>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | {{ super() }} {% endblock %}
+
+{% block content %}
+    {% include 'snippets/nav.html' %}
+    <h1>Welcome back to your dashboard{{ val }}</h1>
+{% endblock %}
