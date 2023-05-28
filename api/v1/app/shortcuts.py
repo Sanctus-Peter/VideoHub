@@ -11,6 +11,8 @@ Functions:
 from .config import get_settings
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from cassandra.cqlengine.query import DoesNotExist, MultipleObjectsReturned
 
 settings = get_settings()
 
@@ -71,3 +73,26 @@ def redirect_to(url: str, cookies: dict = None, remove_session: bool = False):
         response.delete_cookie("session_id")
 
     return response
+
+
+def found_object_or_404(ClassName, **kwargs):
+    """
+    Retrieve an object of the specified class using the provided kwargs or return None if not found.
+
+    Args:
+        ClassName: The class of the object to retrieve.
+        **kwargs: Keyword arguments for filtering the objects.
+
+    Returns:
+        An object of the specified class if found, otherwise None.
+
+    """
+    try:
+        obj = ClassName.objects.get(**kwargs)
+    except DoesNotExist:
+        raise StarletteHTTPException(status_code=404)
+    except MultipleObjectsReturned:
+        raise StarletteHTTPException(status_code=400)
+    except Exception as e:
+        raise StarletteHTTPException(status_code=500)
+    return obj

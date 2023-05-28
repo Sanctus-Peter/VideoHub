@@ -4,7 +4,7 @@ from api.v1.app.schemas import UserLogin
 from api.v1.app.shortcuts import render_template, redirect_to
 from api.v1.app.utils import valid_schema_data
 
-router = APIRouter(tags=["Authentication"], prefix="/auth")
+router = APIRouter(tags=["Authentication"], prefix="/api/auth")
 
 
 @router.get("/token/sign-in", response_class=HTMLResponse)

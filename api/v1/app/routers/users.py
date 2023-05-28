@@ -7,7 +7,7 @@ from api.v1.app.utils import valid_schema_data
 from api.v1.app.decorators import login_required
 
 
-router = APIRouter(tags=["Users"], prefix="/users")
+router = APIRouter(tags=["Users"], prefix="/api/user")
 
 
 @router.get("/")
@@ -45,6 +45,6 @@ async def create_user(
 
 @router.get("/account", response_class=HTMLResponse)
 @login_required
-def user_account(request: Request):
+async def user_account(request: Request):
     context = {}
     return render_template(request, "account.html", context)

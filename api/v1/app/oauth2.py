@@ -101,14 +101,15 @@ def verify_token(token: str, credentialsException):
 
     """
     payload = None
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        _id = payload.get("user_id")
-        if not _id:
-            raise HandleExceptions(status_code=status.HTTP_401_UNAUTHORIZED)
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            _id = payload.get("user_id")
+            if not _id:
+                raise HandleExceptions(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    except JWTError:
-        print("Logged out")
+        except JWTError:
+            print("Logged out")
     return payload
 
 

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    {{ host_id }}
+
+
+<div id='yt-video' data-video-id="{{ host_id }}" data-start-time='0'></div>
+
+<div><code>{{ video.render() }}</code></div>
+
+
+<script>
+    const youtubeVideoDiv = document.getElementById('yt-video')
+    if (youtubeVideoDiv){
+        var watchEventEndpoint = "/api/watch/events"
+        var videoId = youtubeVideoDiv.getAttribute("data-video-id")
+        var defaultStartTime = 0;
+        var initialStartTime = parseInt(youtubeVideoDiv.getAttribute("data-start-time")) || defaultStartTime;
+        var player;
+        var currentTime;
+        var isPlaying;
+        var monitorTimeOut;
+        var monitorTimeInterval = 1000;
+        var timeSinceLastSaved = 0;
+        var timeIntervalForSave = 5000;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('yt-video', {
+                height: '390',
+                width: '640',
+                videoId: videoId,
+                playerVars: {
+                    'modestbranding': 1,
+                    'autoplay': 1,
+                    'start': 0,
+                    'playsinline': 1,
+                    'controls': 1,
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange
+                }
+            })
+        }
+    }
+
+    function onPlayerReady(event){
+        player.seekTo(initialStartTime)
+        // player.playVideo()
+    }
+    function monitorCurrentPlayback() {
+        currentTime = player.getCurrentTime()
+        console.log('currentTime', currentTime)
+        timeSinceLastSaved += monitorTimeInterval
+        if (isPlaying) {
+            monitorTimeOut = setTimeout(monitorCurrentPlayback, monitorTimeInterval)
+        }
+
+        if (timeSinceLastSaved > timeIntervalForSave) {
+            storeWatchEvent()
+        }
+    }
+    function onPlayerStateChange(event) {
+
+        if (event.data === YT.PlayerState.PLAYING) {
+            console.log("is playing")
+            isPlaying = true
+            monitorCurrentPlayback()
+        }
+
+        else if (event.data === YT.PlayerState.PAUSED) {
+            console.log("is paused")
+            isPlaying = false
+            clearTimeout(monitorTimeOut)
+            monitorCurrentPlayback()
+            storeWatchEvent()
+        }
+
+        else if (event.data === YT.PlayerState.ENDED) {
+            console.log("is ended")
+            isPlaying = false
+            clearTimeout(monitorTimeOut)
+            monitorCurrentPlayback()
+            storeWatchEvent()
+        }
+    }
+
+    function storeWatchEvent(){
+        let duration = player.getDuration()
+        let data = {
+            path: window.location.pathname,
+            end_time: currentTime,
+            host_id: videoId,
+            start_time: initialStartTime,
+            duration: duration,
+            complete: duration * .99 === currentTime
+        }
+        timeSinceLastSaved = 0;
+        console.log('saving...', data)
+        let reqOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        }
+        fetch(watchEventEndpoint, reqOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error: ', error);
+            });
+    }
+</script>
+
+{% endblock %}

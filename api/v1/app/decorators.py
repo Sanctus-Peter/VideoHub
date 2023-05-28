@@ -27,8 +27,8 @@ def login_required(func):
 
     """
     @wraps(func)
-    def wrapper(request: Request, *args, **kwargs):
+    async def wrapper(request: Request, *args, **kwargs):
         if not request.user.is_authenticated:
             raise HandleExceptions(status_code=status.HTTP_401_UNAUTHORIZED)
-        return func(request, *args, **kwargs)
+        return await func(request, *args, **kwargs)
     return wrapper

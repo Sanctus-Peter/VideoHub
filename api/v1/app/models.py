@@ -1,8 +1,13 @@
 import uuid
 from datetime import datetime
+
 from cassandra.cqlengine.models import Model
 from cassandra.cqlengine import columns
 from . import config, security, extractors
+from .exceptions import (
+    InvalidUserExceptions, VideoExistException, InvalidYoutubeVideoURLException
+)
+from api.v1.app.shortcuts import templates
 
 settings = config.get_settings()
 
@@ -83,6 +88,7 @@ class Video(Model):
     host_id = columns.Text(primary_key=True)
     db_id = columns.UUID(primary_key=True, default=uuid.uuid1)
     host_service = columns.Text(default='youtube')
+    title = columns.Text()
     url = columns.Text()
     user_id = columns.UUID()
 
@@ -90,16 +96,33 @@ class Video(Model):
         return self.__repr__()
 
     def __repr__(self):
-        return f"Video(video_id={self.host_id}, host_service={self.host_service})"
+        return f"Video(Title={self.title}, video_id={self.host_id}, host_service={self.host_service})"
+
+    @property
+    def path(self):
+        return f"/api/video/{self.host_id}"
+
+    def as_data(self):
+        return {f"{self.host_service}_id": self.host_id, "path": self.path}
+
+    def render(self):
+        basename = self.host_service
+        template = f"videos/renders/{basename}.html"
+        context = {
+            "host_id": self.host_id
+        }
+        t = templates.get_template(template)
+        return t.render(context)
 
     @staticmethod
-    def add_video(url, user_id=None):
+    def add_video(url, user_id=None, title=None):
         """
         Adds a video to the database.
 
         Args:
-            url (str): The URL of the video.
-            user_id (UUID, optional): The ID of the user who added the video.
+            :param url: The URL of the video.
+            :param user_id: user_id of the user
+            :param title: title of the video
 
         Returns:
             Video: The created Video instance.
@@ -107,13 +130,47 @@ class Video(Model):
         Raises:
             Exception: If the user does not exist or if the video already exists.
 
+
         """
         host_id = extractors.extract_video_id(url)
         if host_id is None:
-            return None
-        if User.check_user_exists(user_id=user_id) is None:
-            raise Exception("User not found")
-        qry = Video.objects.filter(host_id=host_id, user_id=user_id.user_id).allow_filtering().first()
-        if qry is None:
-            raise Exception("Video already exists")
-        return Video.create(host_id=host_id, user_id=user_id.user_id, url=url)
+            raise InvalidYoutubeVideoURLException("Invalid Youtube Video URL")
+        if User.check_user_exists(user_id) is None:
+            raise InvalidUserExceptions("User not found")
+        qry = Video.objects.filter(host_id=host_id).allow_filtering().first()
+        if qry is not None:
+            raise VideoExistException("Video already exists")
+        return Video.create(host_id=host_id, user_id=user_id, url=url, title=title)
+
+
+class WatchEvent(Model):
+    __keyspace__ = settings.keyspace
+    host_id = columns.Text(primary_key=True)
+    event_id = columns.TimeUUID(primary_key=True, clustering_order="DESC", default=uuid.uuid1)
+    user_id = columns.UUID(primary_key=True)
+    path = columns.Text()
+    start_time = columns.Double()
+    end_time = columns.Double()
+    duration = columns.Double()
+    complete = columns.Boolean(default=False)
+
+    # def __str__(self):
+    #     return self.__repr__()
+    #
+    # def __repr__(self):
+    #     return f"WatchEvent(user_id={self.user_id}, video_id={self.video_id})"
+    #
+    # @staticmethod
+    # def add_watch_event(user_id, video_id):
+    #     """
+    #     Adds a watch event to the database.
+    #
+    #     Args:
+    #         user_id (UUID): The ID of the user.
+    #         video_id (UUID): The ID of the video.
+    #
+    #     Returns:
+    #         WatchEvent: The created WatchEvent instance.
+    #
+    #     """
+    #     return WatchEvent.create(user_id=user_id, video_id=video_id)
