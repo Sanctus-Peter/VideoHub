@@ -7,6 +7,7 @@ from . import config, security, extractors
 from .exceptions import (
     InvalidUserExceptions, VideoExistException, InvalidYoutubeVideoURLException
 )
+from cassandra.cqlengine.query import DoesNotExist, MultipleObjectsReturned
 from api.v1.app.shortcuts import templates
 
 settings = config.get_settings()
@@ -103,7 +104,7 @@ class Video(Model):
         return f"/api/video/{self.host_id}"
 
     def as_data(self):
-        return {f"{self.host_service}_id": self.host_id, "path": self.path}
+        return {f"{self.host_service}_id": self.host_id, "title": {self.title}, "path": self.path}
 
     def render(self):
         basename = self.host_service
@@ -142,6 +143,22 @@ class Video(Model):
             raise VideoExistException("Video already exists")
         return Video.create(host_id=host_id, user_id=user_id, url=url, title=title)
 
+    @staticmethod
+    def get_or_create(user_id, url, title):
+        obj = None
+        created = False
+        host_id = extractors.extract_video_id(url)
+        try:
+            obj = Video.objects.get(host_id=host_id)
+        except DoesNotExist:
+            obj = Video.add_video(user_id=user_id, url=url, title=title)
+            created = True
+        except MultipleObjectsReturned:
+            obj = Video.objects.filter(host_id=host_id).allow_filtering().first()
+        except Exception as e:
+            raise Exception(e)
+        return obj, created
+
 
 class WatchEvent(Model):
     __keyspace__ = settings.keyspace
@@ -160,17 +177,52 @@ class WatchEvent(Model):
     # def __repr__(self):
     #     return f"WatchEvent(user_id={self.user_id}, video_id={self.video_id})"
     #
-    # @staticmethod
-    # def add_watch_event(user_id, video_id):
-    #     """
-    #     Adds a watch event to the database.
-    #
-    #     Args:
-    #         user_id (UUID): The ID of the user.
-    #         video_id (UUID): The ID of the video.
-    #
-    #     Returns:
-    #         WatchEvent: The created WatchEvent instance.
-    #
-    #     """
-    #     return WatchEvent.create(user_id=user_id, video_id=video_id)
+    @property
+    def is_completed(self):
+        return self.duration * 0.98 < self.end_time
+
+    @staticmethod
+    def get_resume_time(host_id, user_id):
+        resume_time = 0
+        qry_obj = WatchEvent.objects.filter(host_id=host_id, user_id=user_id).allow_filtering().first()
+
+        if qry_obj is not None:
+            if not qry_obj.complete or not qry_obj.is_completed:
+                resume_time = qry_obj.end_time
+
+        return resume_time
+
+
+class Playlist(Model):
+    __keyspace__ = settings.keyspace
+    db_id = columns.UUID(primary_key=True, default=uuid.uuid1)
+    user_id = columns.UUID()
+    updated = columns.DateTime(default=datetime.utcnow())
+    host_ids = columns.List(value_type=columns.Text)
+    title = columns.Text()
+
+    @property
+    def path(self):
+        return f"/api/playlist/{self.db_id}"
+
+    def add_host_ids(self, host_ids=None, replace_all=False):
+        if not isinstance(host_ids, list):
+            return False
+        if replace_all:
+            self.host_ids = host_ids
+        else:
+            self.host_ids += host_ids
+        self.updated = datetime.utcnow()
+        self.save()
+        return True
+
+    def get_videos(self):
+        videos = []
+        for host_id in self.host_ids:
+            try:
+                vid_obj = Video.objects.get(host_id=host_id)
+            except Exception as e:
+                vid_obj = None
+            if vid_obj is not None:
+                videos.append(vid_obj)
+        return videos

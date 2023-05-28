@@ -9,9 +9,8 @@ from api.v1.app.shortcuts import render_template, redirect_to
 
 from . import database, shortcuts, oauth2
 from .exceptions import HandleExceptions
-from .models import User, Video, WatchEvent
-from .routers import users, auth, videos, watch_event
-
+from .models import User, Video, WatchEvent, Playlist
+from .routers import users, auth, videos, watch_event, playlist
 
 DB_SESSION = None
 
@@ -55,12 +54,14 @@ def on_startup():
     sync_table(User)
     sync_table(Video)
     sync_table(WatchEvent)
+    sync_table(Playlist)
 
 
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(videos.router)
 app.include_router(watch_event.router)
+app.include_router(playlist.router)
 
 
 @app.get("/", response_class=HTMLResponse)

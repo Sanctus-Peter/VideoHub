@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from cassandra.cqlengine.query import DoesNotExist, MultipleObjectsReturned
+from fastapi import Request
 
 settings = get_settings()
 
@@ -96,3 +97,7 @@ def found_object_or_404(ClassName, **kwargs):
     except Exception as e:
         raise StarletteHTTPException(status_code=500)
     return obj
+
+
+def is_htmx(request: Request):
+    return request.headers.get("hx-request") == "true"

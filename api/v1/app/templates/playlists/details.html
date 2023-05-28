@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+    {% if playlist.title %}<h1>{{ playlist.title }}</h1>{% endif %}
+
+    <div id="video-create-form"></div>
+    <button hx-get="/api/playlist/{{ playlist.db_id}}/add-video"
+            hx-trigger="click"
+            hx-target="#video-create-form"
+            hx-swap="beforeend"
+    >Add Video to playlist</button>
+
+{% endblock %}

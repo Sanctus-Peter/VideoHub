@@ -144,6 +144,18 @@ class VideoCreate(BaseModel):
         return video_object.as_data()
 
 
+class PlaylistCreate(BaseModel):
+    """
+    Model for creating a playlist.
+
+    Attributes:
+        user_id (str): The ID of the user who is adding the playlist.
+        title (str): The title of the playlists
+    """
+    user_id: uuid.UUID
+    title: str
+
+
 class WatchEvent(BaseModel):
     host_id: str
     start_time: float

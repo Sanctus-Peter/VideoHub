@@ -3,19 +3,5 @@
 {% block content %}
     <h1>Add Video</h1>
 
-    {% include "snippets/form_error.html" %}
-
-    <form method="POST">
-        <div>
-            <label for="title">Title</label>
-            <input type="text" name="title" placeholder="Title of video" id="title" required />
-        </div>
-        <div>
-            <label for="url">Youtube Link</label>
-            <input type="text" name="url" placeholder="https://www.youtube.com/watch?v=3PHXvlpOkf4"
-                   value="{% if url %}{{ url }}{% endif %}" id="url" required />
-        </div>
-
-        <button type="submit">Add Video</button>
-    </form>
+    {% include "videos/htmx/create.html" %}
 {% endblock %}

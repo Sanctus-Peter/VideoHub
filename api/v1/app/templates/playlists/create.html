@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Add Playlist</h1>
+
+    {% include "snippets/form_error.html" %}
+
+    <form method="POST">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" name="title" placeholder="Title of video" id="title" required />
+        </div>
+        <button type="submit">Add Playlist</button>
+    </form>
+{% endblock %}

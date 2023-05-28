@@ -2,12 +2,9 @@
 
 
 {% block content %}
-    {{ host_id }}
+    {% if video.title %}<h1>{{ video.title }}</h1>{% endif %}
 
-
-<div id='yt-video' data-video-id="{{ host_id }}" data-start-time='0'></div>
-
-<div><code>{{ video.render() }}</code></div>
+<div id='yt-video' data-video-id="{{ host_id }}" data-start-time='{{ start_time }}'></div>
 
 
 <script>
@@ -31,7 +28,7 @@
                 videoId: videoId,
                 playerVars: {
                     'modestbranding': 1,
-                    'autoplay': 1,
+                    'autoplay': 0,
                     'start': 0,
                     'playsinline': 1,
                     'controls': 1,
@@ -50,7 +47,6 @@
     }
     function monitorCurrentPlayback() {
         currentTime = player.getCurrentTime()
-        console.log('currentTime', currentTime)
         timeSinceLastSaved += monitorTimeInterval
         if (isPlaying) {
             monitorTimeOut = setTimeout(monitorCurrentPlayback, monitorTimeInterval)
@@ -63,13 +59,11 @@
     function onPlayerStateChange(event) {
 
         if (event.data === YT.PlayerState.PLAYING) {
-            console.log("is playing")
             isPlaying = true
             monitorCurrentPlayback()
         }
 
         else if (event.data === YT.PlayerState.PAUSED) {
-            console.log("is paused")
             isPlaying = false
             clearTimeout(monitorTimeOut)
             monitorCurrentPlayback()
@@ -77,7 +71,6 @@
         }
 
         else if (event.data === YT.PlayerState.ENDED) {
-            console.log("is ended")
             isPlaying = false
             clearTimeout(monitorTimeOut)
             monitorCurrentPlayback()
@@ -96,7 +89,6 @@
             complete: duration * .99 === currentTime
         }
         timeSinceLastSaved = 0;
-        console.log('saving...', data)
         let reqOptions = {
             method: 'POST',
             headers: {
@@ -107,10 +99,10 @@
         fetch(watchEventEndpoint, reqOptions)
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
+                // console.log('Success:', data);
             })
             .catch((error) => {
-                console.error('Error: ', error);
+                // console.error('Error: ', error);
             });
     }
 </script>
