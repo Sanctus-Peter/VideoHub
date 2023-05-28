@@ -12,6 +12,20 @@ credentials_exception = HTTPException(
 
 
 def login_required(func):
+    """
+    Decorator to enforce authentication for API endpoints.
+
+    This decorator checks if the user is authenticated by inspecting the `request.user.is_authenticated` attribute.
+    If the user is not authenticated, it raises an HTTPException with the status code 401 Unauthorized.
+    Otherwise, it allows the execution of the decorated function.
+
+    Args:
+        func (callable): The function to be decorated.
+
+    Returns:
+        callable: The decorated function.
+
+    """
     @wraps(func)
     def wrapper(request: Request, *args, **kwargs):
         if not request.user.is_authenticated:

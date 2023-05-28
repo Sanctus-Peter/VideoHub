@@ -1,3 +1,13 @@
+"""
+This module provides functions for rendering templates and performing redirects in the FastAPI application.
+
+Functions:
+- render_template: Renders a template with the specified context and returns an HTML response.
+- redirect_to: Creates a redirect response to the specified URL with optional cookies and session removal.
+
+"""
+
+
 from .config import get_settings
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -8,8 +18,22 @@ templates = Jinja2Templates(directory=str(settings.template_dir))
 
 
 def render_template(
-        request, template_name: str, context: dict, status_code: int = 200, cookies: dict = None
+    request, template_name: str, context: dict, status_code: int = 200, cookies: dict = None
 ):
+    """
+    Render a template with the specified context and return an HTML response.
+
+    Args:
+        request: The FastAPI request object.
+        template_name: The name of the template to render.
+        context: A dictionary containing the context data for the template.
+        status_code: The HTTP status code for the response (default: 200).
+        cookies: Optional dictionary containing cookies to be set in the response.
+
+    Returns:
+        An HTMLResponse containing the rendered template.
+
+    """
     ctx_copy = context.copy()
     ctx_copy.update({"request": request})
 
@@ -19,16 +43,31 @@ def render_template(
     if cookies:
         for k, v in cookies.items():
             response.set_cookie(key=k, value=v, httponly=True, secure=True, samesite="strict")
-    # return templates.TemplateResponse(template_name, ctx_copy, status_code=status_code)
+
     return response
 
 
 def redirect_to(url: str, cookies: dict = None, remove_session: bool = False):
+    """
+    Create a redirect response to the specified URL with optional cookies and session removal.
+
+    Args:
+        url: The URL to redirect to.
+        cookies: Optional dictionary containing cookies to be set in the response.
+        remove_session: Boolean indicating whether to remove the session cookies (default: False).
+
+    Returns:
+        A RedirectResponse to the specified URL.
+
+    """
     response = RedirectResponse(url, status_code=302)
+
     if cookies:
         for k, v in cookies.items():
             response.set_cookie(key=k, value=v, httponly=True, secure=True, samesite="strict")
+
     if remove_session:
         response.set_cookie(key="session_ended", value=1, httponly=True, secure=True, samesite="strict")
         response.delete_cookie("session_id")
+
     return response

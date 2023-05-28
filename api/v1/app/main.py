@@ -9,8 +9,8 @@ from api.v1.app.shortcuts import render_template, redirect_to
 
 from . import database, shortcuts, oauth2
 from .exceptions import HandleExceptions
-from .models import User
-from .routers import users, auth
+from .models import User, Video
+from .routers import users, auth, videos
 
 
 DB_SESSION = None
@@ -53,10 +53,12 @@ def on_startup():
     DB_SESSION = database.get_session()
     database.get_session()
     sync_table(User)
+    sync_table(Video)
 
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(videos.router)
 
 
 @app.get("/", response_class=HTMLResponse)

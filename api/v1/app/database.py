@@ -15,6 +15,12 @@ ASTRADB_CLIENT_SECRET = settings.db_client_secret
 
 
 def get_session():
+    """
+    Establishes a connection to a Cassandra database and returns the session object.
+
+    Returns:
+        cassandra.cluster.Session: A session object for executing queries against the Cassandra database.
+    """
     cloud_config = {
         'secure_connect_bundle': ASTRADB_CONNECT_BUNDLE
     }
