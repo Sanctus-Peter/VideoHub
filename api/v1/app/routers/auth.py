@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse
 from api.v1.app.schemas import UserLogin
@@ -9,12 +11,13 @@ router = APIRouter(tags=["Authentication"], prefix="/api/auth")
 
 @router.get("/token/sign-in", response_class=HTMLResponse)
 async def user_login(request: Request):
-    session_id = request.cookies.get("session_id") or None
-    return render_template(request, "auth/sign-in.html", {"session_id": session_id is not None})
+    return render_template(request, "auth/sign-in.html", {})
 
 
 @router.post("/token/sign-in", response_class=HTMLResponse)
-async def user_login(request: Request, email: str = Form(...), password: str = Form(...)):
+async def user_login(
+        request: Request, email: str = Form(...), password: str = Form(...), _next: Optional[str] = "/"
+):
     rw_data = {"email": email, "password": password}
     data, errors = valid_schema_data(UserLogin, rw_data)
     if errors:
@@ -22,4 +25,11 @@ async def user_login(request: Request, email: str = Form(...), password: str = F
             "data": data,
             "errors": errors
         }, status_code=400)
-    return redirect_to("/", cookies=data)
+    if "http://127.0.0.1" not in _next:
+        _next = "/"
+    return redirect_to(_next, cookies=data)
+
+
+@router.get("/logout", response_class=HTMLResponse)
+async def user_logout(request: Request):
+    return redirect_to("/api/auth/token/sign-in", remove_session=True)

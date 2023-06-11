@@ -1,3 +1,5 @@
+from typing import Optional
+
 from cassandra.cqlengine.management import sync_table
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,7 +7,8 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from fastapi.responses import HTMLResponse
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from api.v1.app.shortcuts import render_template, redirect_to
+from api.v1.app.shortcuts import render_template, redirect_to, is_htmx
+from api.v1.app.search_client import update_index, search_index
 
 from . import database, shortcuts, oauth2
 from .exceptions import HandleExceptions
@@ -35,7 +38,11 @@ app.add_middleware(
 
 @app.exception_handler(HandleExceptions)
 async def handle_exception_handler(request, exc):
-    return redirect_to(f"/auth/token/sign-in?next={request.url}", remove_session=True)
+    response = redirect_to(f"/api/auth/token/sign-in?next={request.url}", remove_session=True)
+    if is_htmx(request):
+        response.status_code = 200
+        response.headers['HX-Redirect'] = "/api/auth/token/sign-in"
+    return response
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -69,3 +76,24 @@ def root(request: Request):
     if request.user.is_authenticated:
         return shortcuts.render_template(request, "dashboard.html", {})
     return shortcuts.render_template(request, "home.html", {})
+
+
+@app.get("/api/search", response_class=HTMLResponse)
+def search_for_content(request: Request, q: Optional[str] = None):
+    qry = None
+    context = {}
+    if q:
+        qry = q
+        results = search_index(qry)
+        context = {
+            "hits": results.get("hits"),
+            "num_hits": results.get("nbHits"),
+            "query": qry
+        }
+    return render_template(request, "search/details.html", context)
+
+
+@app.post("/api/update-index", response_class=HTMLResponse)
+def update_search_index(request: Request):
+    count = update_index()
+    return HTMLResponse(f"{count} Refreshed")

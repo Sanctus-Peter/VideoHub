@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 
+
 {% block content %}
-    {% for videos in playlists %}
-        <li>
-            <a href="{{ videos.path }}">{% if not videos.title %}{{ videos.db_id }}{% else %}{{ videos.title }}{% endif %}
-            </a>
-        </li>
-    {% endfor %}
+<div class="row">
+    <div class="col col-md-3">
+        {% include "playlists/sidebar.html" %}
+    </div>
+    <div class="col col-md-9">
+        <h1>Playlists</h1>
+        <div class="list-group">
+            {% for videos in playlists %}
+
+            <a class="list-group-item list-group-item-action" aria-current="true"
+                href="{{ videos.path }}">{% if not videos.title %}{{ videos.db_id }}{% else %}{{ videos.title }}{% endif %}</a>
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}
+

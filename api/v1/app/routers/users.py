@@ -40,7 +40,7 @@ async def create_user(
     data.pop("confirm_password")
     data["password"] = password.get_secret_value()
     User.create_user(**data)
-    return redirect_to("/auth/token/sign-in")
+    return redirect_to("/api/auth/token/sign-in")
 
 
 @router.get("/account", response_class=HTMLResponse)

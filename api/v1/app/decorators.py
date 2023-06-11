@@ -1,7 +1,6 @@
 from fastapi import Request, HTTPException, status
 from functools import wraps
 from api.v1.app.exceptions import HandleExceptions
-from api.v1.app.oauth2 import verify_token
 
 
 credentials_exception = HTTPException(

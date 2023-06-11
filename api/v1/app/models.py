@@ -115,6 +115,16 @@ class Video(Model):
         t = templates.get_template(template)
         return t.render(context)
 
+    def update_video_url(self, url, save=True):
+        host_id = extractors.extract_video_id(url)
+        if host_id:
+            self.url = url
+            self.host_id = host_id
+            if save:
+                self.save()
+            return url
+        return None
+
     @staticmethod
     def add_video(url, user_id=None, title=None):
         """

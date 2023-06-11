@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="row">
+    <div class="col-md-4 text-center mx-auto">
     <h1>Sign In</h1>
 
     {% include "snippets/form_error.html" %}
@@ -11,13 +13,18 @@
     <form method="POST">
         <div>
             <label for="email">Email</label>
-            <input type="email" name="email" placeholder="email@example.com" id="email" required />
+            <input class="form-control" type="email" name="email" placeholder="email@example.com" id="email" required />
         </div>
         <div>
             <label for="password">Password</label>
-            <input type="password" name="password" placeholder="your password" id="password" required />
+            <input class="form-control" type="password" name="password" placeholder="your password" id="password" required />
         </div>
-        <button type="submit">sign in</button>
+        <button class="btn btn-primary mt-2" type="submit">sign in</button>
     </form>
+    <div class="mt-4"></div>
+        <p>Don't have a membership account? <a href="/api/user/sign-up">Sign Up</a></p>
+    </div>
     {% endif %}
+    </div>
+</div>
 {% endblock %}

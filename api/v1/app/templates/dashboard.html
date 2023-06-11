@@ -2,6 +2,10 @@
 {% block title %}Dashboard | {{ super() }} {% endblock %}
 
 {% block content %}
-    {% include 'snippets/nav.html' %}
-    <h1>Welcome back to your dashboard{{ val }}</h1>
+<!--    {% include 'snippets/nav.html' %}-->
+    <div class="text-center col-md-4 col-sm-6 col-12 mx-auto">
+        <h1>Welcome back to your dashboard</h1>
+        <h3>Search for content</h3>
+        {% include "search/search_form.html" %}
+    </div>
 {% endblock %}

@@ -1,0 +1,10 @@
+
+<div id="video-inline-edit-{{ video.host_id }}">
+    <a href="{{ video.path }}">{% if not video.title %}{{ video.host_id }}{% else %}{{ video.title }}{% endif %}
+    </a>
+    <button
+            class="btn btn-sm btn-outline-secondary mx-2"
+            hx-get="/api/video/{{ video.host_id }}/hx-edit"
+            hx-target="#video-inline-edit-{{ video.host_id }}"
+    >Edit Video</button>
+</div>

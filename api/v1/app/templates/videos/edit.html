@@ -7,12 +7,12 @@
         {% include "videos/sidebar.html" %}
     </div>
     <div class="col col-md-9">
-        <h1>Videos</h1>
-        {% for video in video_list %}
-        <div  class="border rounded p-2 mb-2">
-            {% include "videos/htmx/list-inline.html" %}
-        </div>
-        {% endfor %}
+        {% if video.title %}<h1>Edit {{ video.title }}</h1>{% endif %}
+
+        {% with video=video %}
+            {% include 'videos/htmx/edit.html' %}
+        {% endwith %}
     </div>
 </div>
+
 {% endblock %}

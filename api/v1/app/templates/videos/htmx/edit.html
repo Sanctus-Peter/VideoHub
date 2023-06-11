@@ -1,0 +1,27 @@
+<div>
+
+    {% include "snippets/form_error.html" %}
+
+    <form method="POST" action="/api/video/{{ video.host_id }}/edit"
+          hx-post="/api/video/{{ video.host_id }}/hx-edit">
+        <div>
+            <label for="title">Title</label>
+            <input class="form-control" type="text" name="title" placeholder="Title of video"
+                   value="{% if video.title %}{{ video.title }}{% endif %}"
+                   id="title" required />
+        </div>
+        <div>
+            <label for="url">Youtube Link</label>
+            <input class="form-control" type="text" name="url" placeholder="https://www.youtube.com/watch?v=3PHXvlpOkf4"
+                   value="{% if video.url %}{{ video.url }}{% endif %}"
+                   id="url" required />
+        </div>
+        <div>
+            <label for="delete">
+                <input type="checkbox" name="delete" id="delete"/> Delete?
+            </label>
+        </div>
+        <button class="btn btn-primary mt-2" type="submit">Save</button>
+    </form>
+
+</div>
