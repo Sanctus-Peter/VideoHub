@@ -3,8 +3,29 @@
 ![Repo size](https://img.shields.io/github/repo-size/Sanctus-Peter/VideoHub)
 ![Pep8 style](https://img.shields.io/badge/PEP8-style%20guide-purple?style=round-square)
 ![Latest commit](https://img.shields.io/github/last-commit/Sanctus-Peter/VideoHub/main?style=round-square)
+![License](https://img.shields.io/github/license/Sanctus-Peter/VideoHub?style=round-square)
 
-Welcome to the Video Hub project! This repository contains the codebase for a cutting-edge Video Hub platform that revolutionizes video management. It utilizes FastAPI, NoSQL Cassandra database, HTML/CSS, JavaScript, Bootstrap, Jinja2 template, and Algolia search to deliver a robust and feature-rich solution.
+
+VideoHub is a web application built with FastAPI that allows users to manage and organize their video library.
+
+## Description
+
+VideoHub provides a user-friendly interface to upload, organize, and watch videos. It allows users to create collections, add videos to collections, and search for videos based on different criteria. The application also supports user authentication and authorization to ensure secure access to the video library.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Authors](#authors)
+- [Acknowledgments](#acknowledgments)
+- [Support](#support)
+- [Roadmap](#roadmap)
+- [Changelog](#changelog)
+
 
 ## Features
 
@@ -39,3 +60,14 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 ```shell
 pip install -r requirements.txt
 ```
+
+## Usage
+
+1. create a free account on [cassandra cloud](https://astra.datastax.com/) and get the connection details
+2. Configure the Cassandra database connection settings in config.py:
+3. Start the FastAPI server:
+
+```shell
+uvicorn api.v1.app.main:app --reload
+```
+4. Open the application in your browser at http://localhost:8000
