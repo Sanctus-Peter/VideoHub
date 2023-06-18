@@ -26,9 +26,10 @@ from starlette.authentication import (
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import status, HTTPException
-from .config import get_settings
-from .exceptions import HandleExceptions
-from .models import User
+from api.v1.app.config import get_settings
+from api.v1.app.exceptions import HandleExceptions
+from api.v1.app.models import User
+from api.v1.app import security
 
 settings = get_settings()
 SECRET_KEY = settings.secret_key
@@ -131,4 +132,6 @@ def authenticate_user(email: str, password: str):
     user = User.objects.get(email=email)
     if not user:
         raise HandleExceptions(status_code=status.HTTP_401_UNAUTHORIZED)
+    if not security.verify(user.password, password):
+        return None
     return user

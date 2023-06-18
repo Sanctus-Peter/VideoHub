@@ -26,7 +26,7 @@ class User(Model):
         return self.__repr__()
 
     def __repr__(self):
-        return f"User(email={self.email}, user_id={self.user_id})"
+        return f"User(email={self.email}, user_id={self.user_id}, password={self.password})"
 
     @staticmethod
     def create_user(email, firstname, lastname, password):
@@ -49,6 +49,7 @@ class User(Model):
             lastname=lastname,
             password=security.hashed(password)
         )
+        print(obj.password)
         obj.save()
         return obj
 

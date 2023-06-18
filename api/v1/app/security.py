@@ -30,5 +30,5 @@ def verify(attempted_password, usr_password):
         bool: True if the passwords match, False otherwise.
 
     """
-    return pwd_context.verify(attempted_password, usr_password)
+    return pwd_context.verify(usr_password, attempted_password)
 
